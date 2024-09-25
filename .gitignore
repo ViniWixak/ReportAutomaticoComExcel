@@ -1,0 +1,32 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Diretório do ambiente
+.env
+
+# Diretórios de dependências do Node.js
+node_modules/
+.pnp/
+.pnp.js
+
+# Executáveis de pacotes
+npm-package-locks/
+yarn-integrity/
+
+# Diretórios de saída
+dist/
+build/
+*.exe
+
+# Configurações do Editor de Código
+.idea/
+.vscode/
+*.swp
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
