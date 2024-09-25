@@ -1,42 +1,60 @@
-function calcularCorCelula(valor, maximo, minimo) {
-    const proporcao = (valor - minimo) / (maximo - minimo);
-    
-    let red, green;
+const ExcelJS = require('exceljs');
 
-    if (proporcao <= 0.5) {
-        red = 255;
-        green = Math.round(255 * (proporcao * 2));
-    } else {
-        green = 255;
-        red = Math.round(255 * (1 - (proporcao - 0.5) * 2));
-    }
+class Formatter {
+    static formatarValores(planilhaAcompanhamento) {
+        planilhaAcompanhamento.eachRow((row, rowNumber) => {
+            if (rowNumber > 1) { // Ignorar a linha de cabeçalho
+                const cellE = row.getCell(5); // Coluna E
+                const valueE = cellE.value;
 
-    return { red, green, blue: 0 };
-}
+                // Definir cor de fundo para a célula da coluna E
+                if (typeof valueE === 'number' && !isNaN(valueE)) {
+                    const cor = this.calcularCor(valueE);
+                    cellE.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: cor },
+                    };
+                } else if (typeof valueE === 'string' && valueE.includes('*')) {
+                    // Se a célula contém "*", deixar em branco
+                    cellE.value = '';
+                }
 
-function aplicarFormatacaoCondicional(worksheet, colunaIndex, dados) {
-    const valoresColuna = dados.slice(1).map(row => parseFloat(String(row[colunaIndex - 1]).replace('*', '').trim()) || 0);
-    const minimo = Math.min(...valoresColuna);
-    const maximo = Math.max(...valoresColuna);
-
-    worksheet.getColumn(colunaIndex).eachCell({ includeEmpty: true }, (cell, rowNumber) => {
-        if (rowNumber > 1) {
-            const valor = String(cell.value || '');
-
-            if (valor.includes('*')) {
-                cell.fill = { type: 'pattern', pattern: 'none' };
-            } else {
-                const valorNumerico = parseFloat(valor.replace('*', '').trim()) || 0;
-                const { red, green } = calcularCorCelula(valorNumerico, maximo, minimo);
-
-                cell.fill = {
+                // Configurar cor de fundo branco para colunas C e D
+                row.getCell(3).fill = {
                     type: 'pattern',
                     pattern: 'solid',
-                    fgColor: { argb: `FF${((1 << 24) + (red << 16) + (green << 8)).toString(16).slice(1).padStart(6, '0')}` }
+                    fgColor: { argb: 'FFFFFF' }, // Branco
+                };
+                row.getCell(4).fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FFFFFF' }, // Branco
                 };
             }
-        }
-    });
+        });
+    }
+
+    static calcularCor(valor) {
+        // Defina a lógica para calcular a cor com base no valor
+        const valorMinimo = 0; // Defina o valor mínimo
+        const valorMaximo = 100; // Defina o valor máximo
+        let percentual = (valor - valorMinimo) / (valorMaximo - valorMinimo);
+        percentual = Math.max(0, Math.min(1, percentual)); // Garantir que está entre 0 e 1
+
+        const vermelho = Math.round(255 * (1 - percentual)); // Do vermelho ao verde
+        const verde = Math.round(255 * percentual);
+        return `${this.converterParaARGB(verde, vermelho, 0)}`;
+    }
+
+    static converterParaARGB(verde, vermelho, azul) {
+        return `${this.converterParaHex(0)}${this.converterParaHex(vermelho)}${this.converterParaHex(verde)}${this.converterParaHex(azul)}`;
+    }
+
+    static converterParaHex(valor) {
+        const hex = valor.toString(16).padStart(2, '0').toUpperCase();
+        return hex;
+    }
 }
 
-module.exports = { aplicarFormatacaoCondicional };
+module.exports = Formatter;

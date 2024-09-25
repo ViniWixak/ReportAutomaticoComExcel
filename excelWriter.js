@@ -1,27 +1,28 @@
 const ExcelJS = require('exceljs');
-const path = require('path');
-const { aplicarFormatacaoCondicional } = require('./formatter');
 
-async function escreverDadosPlanilha(dados, nomeBaseArquivo) {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Acompanhamento Adesão Atualizado');
-    
-    // Adicionar os dados à planilha
-    worksheet.addRow(dados[0]); // Títulos
-    dados.slice(1).forEach(row => worksheet.addRow(row));
-    
-    // Aplicar a formatação condicional
-    aplicarFormatacaoCondicional(worksheet, 5, dados);
+class ExcelWriter {
+    constructor(planilha) {
+        this.planilha = planilha;
+    }
 
-    // Nomear o arquivo com a data atual
-    const dataAtual = new Date().toLocaleDateString('pt-BR').replace(/\//g, '.');
-    const nomeArquivo = `${nomeBaseArquivo} ${dataAtual}.xlsx`;
+    async escreverDados(dados) {
+        this.planilha.eachRow((row, rowNumber) => {
+            if (rowNumber > 1) {
+                const nomeColaboradorAcompanhamento = row.getCell(1).value;
+                const dadosCorrespondentes = dados.find(dado => dado.nomeColaborador === nomeColaboradorAcompanhamento);
 
-    // Salvar a planilha
-    const caminhoCompleto = path.resolve(__dirname, nomeArquivo);
-    await workbook.xlsx.writeFile(caminhoCompleto);
+                if (dadosCorrespondentes) {
+                    row.getCell(3).value = dadosCorrespondentes.invitees;
+                    row.getCell(4).value = dadosCorrespondentes.respondents;
+                    row.getCell(5).value = dadosCorrespondentes.respondentsPercent;
+                }
+            }
+        });
+    }
 
-    console.log(`Arquivo salvo com sucesso: ${caminhoCompleto}`);
+    async salvarPlanilha(nomeArquivo) {
+        await this.planilha.workbook.xlsx.writeFile(nomeArquivo);
+    }
 }
 
-module.exports = { escreverDadosPlanilha };
+module.exports = ExcelWriter;

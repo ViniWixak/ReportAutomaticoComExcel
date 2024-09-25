@@ -17,7 +17,7 @@ function getPlanilhaPorPrefixo(prefixo) {
         throw new Error(`Nenhuma planilha encontrada com o prefixo: ${prefixo}`);
     }
 
-    return path.join(__dirname, planilha); // Retorna o caminho completo da planilha encontrada
+    return path.join("./", planilha); // Retorna o caminho completo da planilha encontrada
 }
 
 module.exports = {

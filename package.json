@@ -21,10 +21,13 @@
   ],
   "pkg": {
     "targets": [
-      "node14",
-      "node16",
-      "node18",
-      "node20"
+      "node20-linux-x64",
+      "node20-macos-x64",
+      "node20-win-x64"
+    ],
+    "assets": [
+        "caminho/para/pesquisa.xlsx",
+        "caminho/para/acompanhamento.xlsx"
     ]
   }
 }

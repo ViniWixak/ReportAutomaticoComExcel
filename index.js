@@ -1,5 +1,3 @@
-const { lerDadosPlanilha } = require('./excelReader');
-const { escreverDadosPlanilha } = require('./excelWriter');
 const { processarPlanilhas } = require('./dataProcessor');
 const { getPlanilhaPorPrefixo } = require('./fileHelper');
 
@@ -9,10 +7,10 @@ async function executarProcesso() {
         const caminhoPlanilhaPesquisa = getPlanilhaPorPrefixo('Pesquisa');
         const caminhoPlanilhaAcompanhamento = getPlanilhaPorPrefixo('Acompanhamento');
 
+        console.log('Iniciando o processamento das planilhas...');
         
-        const dadosProcessados = processarPlanilhas(caminhoPlanilhaPesquisa, caminhoPlanilhaAcompanhamento);
+        await processarPlanilhas(caminhoPlanilhaPesquisa, caminhoPlanilhaAcompanhamento);
         
-        await escreverDadosPlanilha(dadosProcessados, 'Acompanhamento Adesão Atualizado');
         console.log('Processo concluído com sucesso!');
     } catch (error) {
         console.error('Erro ao executar o processo:', error);
